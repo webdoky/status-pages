@@ -1,4 +1,4 @@
-import { ContentItem, HeadingItem } from '../content/wdContentLoader';
+import { ContentItem, HeadingItem } from '../content/contentLoader';
 import { useState, useEffect, useCallback } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';

@@ -1,18 +1,19 @@
-import { ContentItem } from '../content/wdContentLoader';
+import { PageData } from '../content/contentLoader';
 import TranslationStatusSection from './translationStatusSection';
 import { useReducer } from 'react';
 import TranslationOverallStatusRow from './translationOverallStatusRow';
-import SerializedTranslationSection from './_serializedTranslationSection';
+import { AnalyticRecords } from '../content/searchDataLoader';
 
-const NUMBER_OF_SIGNIFICANT_DIGITS = 2;
+const NUMBER_OF_SIGNIFICANT_DIGITS = 4;
 
 interface Params {
   allPopularities: { link: string; popularity: number }[];
-  allPages: ContentItem[];
+  allPages: PageData[];
   priorityOnly?: boolean;
+  searchAnalytics: AnalyticRecords[];
 }
 
-const filterPages = (pages, data) => {
+const filterPages = (pages: PageData[], data: FilterSate) => {
   const { showNotTranslated, showUpToDate, showTranslated } = data;
   return pages.filter(
     (page) =>
@@ -22,7 +23,20 @@ const filterPages = (pages, data) => {
   );
 };
 
-function reducer(state: FilterSate, action) {
+type FilterAction =
+  | 'toggleNotTranslated'
+  | 'toggleUpToDate'
+  | 'toggleTranslated'
+  | 'togglePriority'
+  | 'enablePriorityMdn'
+  | 'enablePriorityWd';
+
+type PriorityType = 'mdn' | 'wd';
+
+function reducer(
+  state: FilterSate,
+  action: { type: FilterAction }
+): FilterSate {
   switch (action.type) {
     case 'toggleNotTranslated':
       return { ...state, showNotTranslated: !state.showNotTranslated };
@@ -30,6 +44,12 @@ function reducer(state: FilterSate, action) {
       return { ...state, showUpToDate: !state.showUpToDate };
     case 'toggleTranslated':
       return { ...state, showTranslated: !state.showTranslated };
+    case 'togglePriority':
+      return { ...state, priorityOnly: false };
+    case 'enablePriorityMdn':
+      return { ...state, priorityOnly: true, priorityType: 'mdn' };
+    case 'enablePriorityWd':
+      return { ...state, priorityOnly: true, priorityType: 'wd' };
     default:
       throw new Error();
   }
@@ -39,17 +59,21 @@ interface FilterSate {
   showNotTranslated: boolean;
   showUpToDate: boolean;
   showTranslated: boolean;
+  priorityOnly: boolean;
+  priorityType: PriorityType;
 }
 
 export default function TranslationStatus({
   allPopularities,
   allPages,
-  priorityOnly = false,
+  searchAnalytics,
 }: Params) {
   const [filterState, dispatch] = useReducer(reducer, {
     showNotTranslated: true,
     showUpToDate: true,
     showTranslated: true,
+    priorityOnly: true,
+    priorityType: 'wd',
   });
 
   const pathToPagesMap = Object.fromEntries(
@@ -60,7 +84,10 @@ export default function TranslationStatus({
     allPopularities.map(({ link, popularity }) => [link, popularity])
   );
 
-  const supportedSections = {
+  const supportedSections: Record<
+    string,
+    (PageData & { popularity: number })[]
+  > = {
     css: [],
     html: [],
     javascript: [],
@@ -69,23 +96,39 @@ export default function TranslationStatus({
     glossary: [],
   };
 
-  if (priorityOnly) {
-    allPopularities.forEach((entry) => {
-      const { link, popularity } = entry;
-      const normalizedPopularity = parseFloat(
-        popularity.toFixed(NUMBER_OF_SIGNIFICANT_DIGITS)
-      );
-      if (normalizedPopularity > 0) {
-        const page = pathToPagesMap[link];
-        if (page && page.section) {
-          const { section } = page;
-          supportedSections[section].push({
-            ...page,
-            popularity: normalizedPopularity,
-          });
+  if (filterState.priorityOnly) {
+    if (filterState.priorityType === 'mdn') {
+      allPopularities.forEach((entry) => {
+        const { link, popularity } = entry;
+        const normalizedPopularity = parseFloat(
+          popularity.toFixed(NUMBER_OF_SIGNIFICANT_DIGITS)
+        );
+        if (normalizedPopularity > 0) {
+          const page = pathToPagesMap[link];
+          if (page && page.section) {
+            const { section } = page;
+            supportedSections[section].push({
+              ...page,
+              popularity: normalizedPopularity,
+            });
+          }
         }
-      }
-    });
+      });
+    } else {
+      searchAnalytics.forEach((entry) => {
+        const { slug, clicks: popularity } = entry;
+        if (popularity > 0) {
+          const page = pathToPagesMap[slug];
+          if (page && page.section) {
+            const { section } = page;
+            supportedSections[section].push({
+              ...page,
+              popularity,
+            });
+          }
+        }
+      });
+    }
   } else {
     allPages.forEach((page) => {
       const { section, path } = page;
@@ -109,6 +152,40 @@ export default function TranslationStatus({
   return (
     <>
       <div className="wd-table-scroll">
+        <div className="flex justify-between">
+          <label>
+            <input
+              type="radio"
+              checked={!filterState.priorityOnly}
+              className="mr-2"
+              onChange={() => dispatch({ type: 'togglePriority' })}
+            />
+            Не сортувати за пріоритетом
+          </label>
+          <label>
+            <input
+              type="radio"
+              checked={
+                filterState.priorityOnly && filterState.priorityType === 'mdn'
+              }
+              className="mr-2"
+              onChange={() => dispatch({ type: 'enablePriorityMdn' })}
+            />
+            Сортувати за популярністю MDN
+          </label>
+          <label>
+            <input
+              type="radio"
+              checked={
+                filterState.priorityOnly && filterState.priorityType === 'wd'
+              }
+              className="mr-2"
+              onChange={() => dispatch({ type: 'enablePriorityWd' })}
+            />
+            Сортувати за нашою аналітикою
+          </label>
+        </div>
+        <hr />
         <table className="table table-bordered w-full doc-status__table">
           <thead>
             <tr>

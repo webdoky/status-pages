@@ -1,4 +1,4 @@
-import { ContentItem } from '../content/wdContentLoader';
+import { ContentItem } from '../content/contentLoader';
 import classNames from 'classnames';
 import {
   GithubIcon,

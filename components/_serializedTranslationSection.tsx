@@ -1,4 +1,4 @@
-import { ContentItem } from '../content/wdContentLoader';
+import { ContentItem } from '../content/contentLoader';
 
 interface Params {
   pages: Partial<ContentItem & { popularity: number }>[];

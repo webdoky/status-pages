@@ -1,4 +1,4 @@
-import { MacroData, ContentItem } from '../content/wdContentLoader';
+import { MacroData, ContentItem } from '../content/contentLoader';
 import WdNavMenu from './wdNavMenu';
 
 interface Params {

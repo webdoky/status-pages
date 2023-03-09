@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { promises as fs } from 'fs';
 import { google } from 'googleapis';
-import nextSettings from '../next.config';
+import nextSettings from '../next.config.js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -36,6 +36,9 @@ const fileExists = async (path: string) => {
 
   return true;
 };
+
+const stripDomainFromUrl = (url: string) =>
+  url.replace(/https?:\/\/[^/]+/, '').replace(/\/$/, '');
 
 (async function () {
   if (!GOOGLE_KEY) {
@@ -81,12 +84,12 @@ const fileExists = async (path: string) => {
   const records = (response.data?.rows || []) as AnalyticsRecord[];
 
   // Processing and saving analytics data
-  const weights: { url: string; clicks: number }[] = [];
+  const weights: { slug: string; clicks: number }[] = [];
 
   for (const record of records) {
     const { keys, clicks } = record;
-    for (const key of keys) {
-      weights.push({ url: key, clicks });
+    for (const url of keys) {
+      weights.push({ slug: stripDomainFromUrl(url), clicks });
     }
   }
 

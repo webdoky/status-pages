@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { ContentItem } from '../content/wdContentLoader';
+import { ContentItem } from '../content/contentLoader';
 import styles from './editOnGithub.module.css';
 
 interface Params {

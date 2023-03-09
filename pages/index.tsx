@@ -1,117 +1,91 @@
-import Link from 'next/link';
 import Layout from '../components/layout';
-import Logo from '../components/logo';
+import contentLoader, { PageData } from '../content/contentLoader';
+import PopularitiesLoader, {
+  PopularityItem,
+} from '../content/mdnPopularitiesLoader';
+import TranslationStatus from '../components/translationStatus';
 import MetaHead from '../components/metaHead';
-import SearchDataLoader from '../content/searchDataLoader';
+import SearchDataLoader, { AnalyticRecords } from '../content/searchDataLoader';
 
 export async function getStaticProps() {
-  const analytics = await SearchDataLoader.getAll();
-
-  console.log(analytics, '????');
+  const pages = await contentLoader.getAll();
+  const allPopularities = PopularitiesLoader.getAll();
+  const searchAnalytics = await SearchDataLoader.getAll();
 
   return {
     props: {
-      analytics: analytics,
-      targetLocale: process.env.TARGET_LOCALE,
       basePath: process.env.BASE_PATH,
+      pages,
+      allPopularities,
+      searchAnalytics,
     },
   };
 }
 
-export default function IndexPage({ changelogs, targetLocale, basePath }) {
+export default function IndexPage({
+  basePath,
+  allPopularities,
+  pages: allPages,
+  searchAnalytics,
+}: {
+  basePath: string;
+  allPopularities: PopularityItem[];
+  pages: PageData[];
+  searchAnalytics: AnalyticRecords[];
+}) {
   return (
     <main className="wd-main-page">
       <MetaHead
-        title="Про веб, у вебі, для вебу | ВебДоки"
-        description="Проєкт Webdoky — це зібрання інформації про технології відкритого вебу. HTML, CSS, JavaScript, та API, як для вебсайтів, так і для прогресивних вебзастосунків"
-        canonicalUrl={`${basePath}/`}
+        title="Стан перекладу пріоритетних сторінок | ВебДоки"
+        description="Тут наведена порівняльна таблиця стану перекладу документації
+        за розділами, у розрізі їхньої популярності."
+        canonicalUrl={`${basePath}/translation-status-priority`}
         basePath={`${basePath}`}
       />
-      <Layout currentPage={{ path: '/' }} sidebarSections={[]}>
-        <div className="pt-8 md:pt-16">
-          <div className="flex flex-col items-center">
-            <div className="flex flex-col items-center mb-2 text-ui-primary">
-              <Logo width={80} />
-              <p className="text-3xl text-6xl font-black tracking-tighter border-none">
-                WebDoky
-              </p>
-            </div>
-            <h1 className="text-4xl text-center lg:text-5xl">
-              Ресурси та документація. <br />
-              Від розробників — для розробників
-            </h1>
-            <div className="flex p-2 flex-wrap justify-center">
-              <Link
-                href={`/${targetLocale}/docs/Web/JavaScript/`}
-                className="p-2 mx-5 border-b border-ui-border no-underline text-ui-typo"
-              >
-                JavaScript &#8594;
-              </Link>
-              <Link
-                href={`/${targetLocale}/docs/Web/CSS/`}
-                className="p-2 mx-5 border-b border-ui-border no-underline text-ui-typo"
-              >
-                CSS &#8594;
-              </Link>
-              <Link
-                href={`/${targetLocale}/docs/Web/HTML/`}
-                className="p-2 mx-5 border-b border-ui-border no-underline text-ui-typo"
-              >
-                HTML &#8594;
-              </Link>
-            </div>
-          </div>
-
-          <div className="pt-8 mx-auto mt-8 border-t md:mt-16 md:pt-16 border-top border-ui-border max-w-screen-sm"></div>
-
-          <div className="section-info flex flex-wrap justify-center -mx-4">
-            <div className="flex flex-col w-full px-4 mb-8 md:w-2/3">
-              <h2 className="font-bold tracking-wide uppercase mb-0">
-                Що нового
-              </h2>
-              <p className="mb-0">
-                Найсвіжіші оновлення з нашого{' '}
-                <a
-                  href="https://github.com/webdoky/content/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  репозиторію
+      <Layout
+        currentPage={{ path: '/translation-status-priority' }}
+        sidebarSections={[]}
+      >
+        <div className="flex flex-wrap items-start justify-start">
+          <div className="order-1 w-full md:w-2/3">
+            <div className="wd-content">
+              <h1 id="пара-слів-про-нас">
+                <a href="#Стан-перекладу-документації" aria-hidden="true">
+                  <span className="icon icon-link"></span>
                 </a>
+                Статус перекладу сторінок
+              </h1>
+              <h2 id="як-зявився-цей-проєкт">
+                <a href="#Огляд" aria-hidden="true">
+                  <span className="icon icon-link"></span>
+                </a>
+                Огляд
+              </h2>
+              <p>
+                Популярність різних сторінок береться з аналітики MDN, де ця
+                інформація застосовується для ранжування пошуку (докладніше про
+                це{' '}
+                <a href="https://github.com/mdn/yari/blob/main/docs/popularities.md">
+                  тут
+                </a>
+                ). Ми її використовуємо як орієнтир для вибору сторінок, які
+                слід перекласти в першу чергу.
               </p>
-              <div className="border-ui-border w-1/4 border-b mb-5 mt-1"></div>
-
-              <div
-                key="index"
-                className="changelog"
-                dangerouslySetInnerHTML={{ __html: changelogs }}
-              ></div>
-
-              <div className="border-ui-border w-1/4 border-b mb-3 mt-4"></div>
-              <a
-                href="https://github.com/webdoky/content/blob/master/CHANGELOG.md"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Вся історія версій
-              </a>
-            </div>
-
-            <div className="flex flex-col w-full px-4 mb-8 md:w-1/3">
-              <h2 className="sr-only">Про нас</h2>
-              <p className="text-lg text-left">
-                WebDoky (ВебДоки) — це проект, покликаний зробити вміст MDN Web
-                Docs доступним українською мовою.
+              <p>
+                Індекс популярності за MDN вже нормалізований, і коливається між
+                0 та 1. Більший рейтинг означає вищий пріоритет перекладу.
               </p>
-              <h3 className="font-bold tracking-wide uppercase">Долучитись</h3>
-              <p className="text-lg text-left">
-                WebDoky — це відкритий проєкт, і будь-хто може долучитися і
-                допомогти нам робити вебдокументацію доступною для україномовних
-                читачів.{' '}
-                <Link href="/docs/">
-                  Докладніше — в розділі &quot;Про проєкт&quot;
-                </Link>
+              <p>
+                Наш індекс популярності поки ненормалізований, і представлений
+                просто додатнім числом. Більше число означає вищу популярність
+                сторінки.
               </p>
+
+              <TranslationStatus
+                allPopularities={allPopularities}
+                allPages={allPages}
+                searchAnalytics={searchAnalytics}
+              />
             </div>
           </div>
         </div>

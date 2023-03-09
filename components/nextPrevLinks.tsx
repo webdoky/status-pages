@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ContentItem } from '../content/wdContentLoader';
+import { ContentItem } from '../content/contentLoader';
 import { ArrowRightIcon, ArrowLeftIcon } from './icons';
 
 interface Params {

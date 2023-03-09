@@ -1,9 +1,9 @@
-import { ContentItem } from '../content/wdContentLoader';
+import { PageData } from '../content/contentLoader';
 
 interface Params {
   title?: string;
   anchor?: string;
-  allPages: Partial<ContentItem>[];
+  allPages: Partial<PageData>[];
 }
 
 export default function TranslationOverallStatusRow({
@@ -15,15 +15,16 @@ export default function TranslationOverallStatusRow({
   const translatedPageCount = allPages.filter((node) => node.hasContent).length;
 
   const translatedPagePercent =
-    Math.round((translatedPageCount / allPageCount) * 100 * 100) / 100; // toFixed(2)
+    Math.round(
+      (allPageCount > 0 ? translatedPageCount / allPageCount : 0) * 100 * 100
+    ) / 100; // toFixed(2)
   const obsoletePages = allPages.filter(
-    (node) => node.updatesInOriginalRepo.length
+    (node) => (node.updatesInOriginalRepo || []).length
   ).length;
 
   const translationsUpToDateCount = translatedPageCount - obsoletePages;
   const translationsUpToDatePercent = (
-    (translationsUpToDateCount / allPageCount) *
-    100
+    (allPageCount > 0 ? translationsUpToDateCount / allPageCount : 0) * 100
   ).toFixed(2);
 
   return (
@@ -46,7 +47,8 @@ export default function TranslationOverallStatusRow({
         {translationsUpToDateCount} ({translationsUpToDatePercent}%)
       </td>
       <td className="doc-status--not-translated">
-        {allPageCount - translatedPageCount} ({100 - translatedPagePercent}%)
+        {allPageCount - translatedPageCount} (
+        {allPageCount > 0 ? 100 - translatedPagePercent : 0}%)
       </td>
     </tr>
   );

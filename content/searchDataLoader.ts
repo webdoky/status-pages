@@ -10,8 +10,8 @@ const fileExists = async (path: string) => {
   return true;
 };
 
-interface AnalyticRecords {
-  url: string;
+export interface AnalyticRecords {
+  slug: string;
   clicks: number;
 }
 
