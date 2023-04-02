@@ -49,10 +49,7 @@ export default function IndexPage({
         canonicalUrl={`${basePath}/translation-status-priority`}
         basePath={`${basePath}`}
       />
-      <Layout
-        currentPage={{ path: '/translation-status-priority' }}
-        sidebarSections={[]}
-      >
+      <Layout>
         <div className="flex flex-wrap items-start justify-start">
           <div className="order-1 w-full md:w-2/3">
             <div className="wd-content">

@@ -10,7 +10,7 @@ export async function getStaticProps() {
   };
 }
 
-export default function NotFoundPage({ basePath }) {
+export default function NotFoundPage({ basePath }: { basePath: string }) {
   return (
     <main className="wd-main-page">
       <MetaHead
@@ -18,7 +18,7 @@ export default function NotFoundPage({ basePath }) {
         description="Проєкт Webdoky — це зібрання інформації про технології відкритого вебу. HTML, CSS, JavaScript, та API, як для вебсайтів, так і для прогресивних вебзастосунків"
         basePath={`${basePath}`}
       />
-      <Layout currentPage={{ path: '/404.html' }} sidebarSections={[]}>
+      <Layout>
         <div className="pt-8 md:pt-16">
           <h1 className="text-center font-bold text-4xl text-ui-typo">
             От халепа, тут ніц нема!

@@ -1,8 +1,8 @@
-import { ContentItem } from '../content/contentLoader';
+import { PageData } from '../content/contentLoader';
 import TranslationStatusRow from './translationStatusRow';
 
 interface Params {
-  pages: Partial<ContentItem>[];
+  pages: Partial<PageData>[];
   includePopularity: boolean;
 }
 

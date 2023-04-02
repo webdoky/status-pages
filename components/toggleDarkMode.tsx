@@ -11,7 +11,7 @@ export default function ToggleDarkMode({ className }: { className?: string }) {
     return toggleDarkMode(!hasDarkMode);
   };
 
-  const toggleDarkMode = (shouldBeDark) => {
+  const toggleDarkMode = (shouldBeDark: boolean) => {
     document.documentElement.toggleAttribute(LIGHTS_OUT, shouldBeDark);
 
     setDarkMode(shouldBeDark);
@@ -19,7 +19,7 @@ export default function ToggleDarkMode({ className }: { className?: string }) {
     writeToStorage(shouldBeDark);
   };
 
-  const writeToStorage = (prefersDark) => {
+  const writeToStorage = (prefersDark: boolean) => {
     localStorage.setItem(LIGHTS_OUT, prefersDark ? 'true' : 'false');
   };
   return (
