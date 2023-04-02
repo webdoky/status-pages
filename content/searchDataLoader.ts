@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import { PopularityMap } from './mdnPopularitiesLoader';
 
 const fileExists = async (path: string) => {
   try {
@@ -10,13 +11,13 @@ const fileExists = async (path: string) => {
   return true;
 };
 
-export interface AnalyticRecords {
+interface AnalyticRecords {
   slug: string;
-  clicks: number;
+  popularity: number;
 }
 
 export default class SearchDataLoader {
-  public static getAll = async (): Promise<AnalyticRecords[]> => {
+  public static getPopularityMap = async (): Promise<PopularityMap> => {
     const analyticsFile = process.env?.analyticsFile || '';
 
     if (!analyticsFile) {
@@ -31,6 +32,12 @@ export default class SearchDataLoader {
 
     const records = JSON.parse(content);
 
-    return records;
+    const popularityMap: PopularityMap = {};
+
+    records.forEach((record: AnalyticRecords) => {
+      popularityMap[record.slug] = record.popularity;
+    });
+
+    return popularityMap;
   };
 }

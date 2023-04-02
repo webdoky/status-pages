@@ -1,4 +1,3 @@
-import { ContentItem } from '../content/contentLoader';
 import classNames from 'classnames';
 import {
   GithubIcon,
@@ -8,9 +7,10 @@ import {
   FileCodeIcon,
 } from './icons';
 import CopyToClipboard from './copyToClipboard';
+import { PageData } from '../content/contentLoader';
 
 interface Params {
-  page: Partial<ContentItem & { popularity: number }>;
+  page: Partial<PageData & { currentPopularity: number }>;
   includePopularity: boolean;
 }
 
@@ -37,12 +37,17 @@ export default function TranslationStatusRow({
   page,
   includePopularity,
 }: Params) {
-  const { title, updatesInOriginalRepo, originalPath } = page;
+  const {
+    title = '',
+    updatesInOriginalRepo = [],
+    originalPath = '',
+    slug,
+    currentPopularity,
+    hasContent,
+  } = page;
   const linkToRawOriginalGithubContent = `https://raw.githubusercontent.com/mdn/content/main/files/en-us${originalPath}`;
   const baseRepoPath = 'files/uk';
-  const tree = page.originalPath
-    .replace('/index.html', '')
-    .replace('/index.md', '');
+  const tree = originalPath.replace('/index.html', '').replace('/index.md', '');
 
   const updates = parseUpdatesList(updatesInOriginalRepo);
 
@@ -62,13 +67,9 @@ export default function TranslationStatusRow({
 
   const noteOnUpdate = `Оригінальний вміст: [${escapeHtml(
     title
-  )}@MDN](https://developer.mozilla.org/en-us/docs/${
-    page.slug
-  }), [сирці ${escapeHtml(
+  )}@MDN](https://developer.mozilla.org/en-us/docs/${slug}), [сирці ${escapeHtml(
     title
-  )}@GitHub](https://github.com/mdn/content/blob/main/files/en-us${
-    page.originalPath
-  })${changes}`;
+  )}@GitHub](https://github.com/mdn/content/blob/main/files/en-us${originalPath})${changes}`;
 
   const gitDiffCommand = updates.length
     ? `git diff ${updates[updates.length - 1].commit}^..${
@@ -78,12 +79,12 @@ export default function TranslationStatusRow({
 
   return (
     <tr>
-      {includePopularity && <td>{page.popularity}</td>}
+      {includePopularity && <td>{currentPopularity}</td>}
       <td
         className={classNames({
-          'doc-status--not-translated': !page.hasContent,
-          'doc-status--translated': page.hasContent,
-          'doc-status--up-to-date': !page.updatesInOriginalRepo.length,
+          'doc-status--not-translated': !hasContent,
+          'doc-status--translated': hasContent,
+          'doc-status--up-to-date': !updatesInOriginalRepo.length,
         })}
       >
         <div className="flex flex-row justify-between">
@@ -96,11 +97,11 @@ export default function TranslationStatusRow({
             >
               {page.title}
             </a>
-            {page.updatesInOriginalRepo.length ? (
+            {updatesInOriginalRepo.length ? (
               <span>
                 {' '}
                 (нові зміни:{' '}
-                {page.updatesInOriginalRepo.map((commit, index) => (
+                {updatesInOriginalRepo.map((commit, index) => (
                   <a
                     key={commit}
                     target="_blank"
@@ -110,7 +111,7 @@ export default function TranslationStatusRow({
                     }`}
                   >
                     {`${commit.slice(0, 7)}${
-                      page.updatesInOriginalRepo.length - 1 > index ? ',' : ''
+                      updatesInOriginalRepo.length - 1 > index ? ',' : ''
                     }`}{' '}
                   </a>
                 ))}
@@ -145,7 +146,7 @@ export default function TranslationStatusRow({
           <a
             className="text-ui-typo px-2"
             title="Переглянути сирці оригінальної сторінки на GitHub"
-            href={`https://github.com/mdn/content/blob/main/files/en-us${page.originalPath}`}
+            href={`https://github.com/mdn/content/blob/main/files/en-us${originalPath}`}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -155,7 +156,7 @@ export default function TranslationStatusRow({
       </td>
       <td>
         <div className="flex flex-row">
-          {page.updatesInOriginalRepo.length ? (
+          {updatesInOriginalRepo.length ? (
             <>
               <CopyToClipboard
                 text={noteOnUpdate}
@@ -175,7 +176,7 @@ export default function TranslationStatusRow({
             </>
           ) : null}
 
-          {!page.hasContent && (
+          {!hasContent && (
             <>
               <CopyToClipboard
                 text={bashCommand}

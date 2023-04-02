@@ -84,12 +84,20 @@ const stripDomainFromUrl = (url: string) =>
   const records = (response.data?.rows || []) as AnalyticsRecord[];
 
   // Processing and saving analytics data
-  const weights: { slug: string; clicks: number }[] = [];
+  const weights: { slug: string; popularity: number }[] = [];
+
+  const overallClicksSum = records.reduce(
+    (accumulator, entry) => accumulator + entry.clicks,
+    0
+  );
 
   for (const record of records) {
     const { keys, clicks } = record;
     for (const url of keys) {
-      weights.push({ slug: stripDomainFromUrl(url), clicks });
+      weights.push({
+        slug: stripDomainFromUrl(url),
+        popularity: overallClicksSum > 0 ? clicks / overallClicksSum : 0,
+      });
     }
   }
 

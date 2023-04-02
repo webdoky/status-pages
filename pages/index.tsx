@@ -1,38 +1,45 @@
 import Layout from '../components/layout';
 import contentLoader, { PageData } from '../content/contentLoader';
-import PopularitiesLoader, {
-  PopularityItem,
-} from '../content/mdnPopularitiesLoader';
-import TranslationStatus from '../components/translationStatus';
+import PopularitiesLoader from '../content/mdnPopularitiesLoader';
+import TranslationStatus, {
+  PageWithPopularityData,
+} from '../components/translationStatus';
 import MetaHead from '../components/metaHead';
-import SearchDataLoader, { AnalyticRecords } from '../content/searchDataLoader';
+import SearchDataLoader from '../content/searchDataLoader';
+import { EqualizerIcon } from '../components/icons';
+import { useState } from 'react';
+import TranslationStatusSettings from '../components/translationSettings';
+import { TraslationStatusProvider } from '../contexts/translationStatusContext';
+import { PagePopularityData } from '../components/translationStatus';
 
 export async function getStaticProps() {
   const pages = await contentLoader.getAll();
-  const allPopularities = PopularitiesLoader.getAll();
-  const searchAnalytics = await SearchDataLoader.getAll();
+  const popularitiesMdn = PopularitiesLoader.getPopularityMap();
+  const popularitiesWd = await SearchDataLoader.getPopularityMap();
 
   return {
     props: {
       basePath: process.env.BASE_PATH,
-      pages,
-      allPopularities,
-      searchAnalytics,
+      pages: pages.map((page) => ({
+        ...page,
+        popularity: {
+          mdn: page.path ? popularitiesMdn[page.path] || 0 : 0,
+          wd: page.path ? popularitiesWd[page.path] || 0 : 0,
+        },
+      })),
     },
   };
 }
 
 export default function IndexPage({
   basePath,
-  allPopularities,
   pages: allPages,
-  searchAnalytics,
 }: {
   basePath: string;
-  allPopularities: PopularityItem[];
-  pages: PageData[];
-  searchAnalytics: AnalyticRecords[];
+  pages: PageWithPopularityData[];
 }) {
+  const [isFilterOpened, setIsFilterOpened] = useState(false);
+
   return (
     <main className="wd-main-page">
       <MetaHead
@@ -55,37 +62,22 @@ export default function IndexPage({
                 </a>
                 Статус перекладу сторінок
               </h1>
-              <h2 id="як-зявився-цей-проєкт">
-                <a href="#Огляд" aria-hidden="true">
-                  <span className="icon icon-link"></span>
-                </a>
-                Огляд
-              </h2>
-              <p>
-                Популярність різних сторінок береться з аналітики MDN, де ця
-                інформація застосовується для ранжування пошуку (докладніше про
-                це{' '}
-                <a href="https://github.com/mdn/yari/blob/main/docs/popularities.md">
-                  тут
-                </a>
-                ). Ми її використовуємо як орієнтир для вибору сторінок, які
-                слід перекласти в першу чергу.
-              </p>
-              <p>
-                Індекс популярності за MDN вже нормалізований, і коливається між
-                0 та 1. Більший рейтинг означає вищий пріоритет перекладу.
-              </p>
-              <p>
-                Наш індекс популярності поки ненормалізований, і представлений
-                просто додатнім числом. Більше число означає вищу популярність
-                сторінки.
-              </p>
-
-              <TranslationStatus
-                allPopularities={allPopularities}
-                allPages={allPages}
-                searchAnalytics={searchAnalytics}
-              />
+              <TraslationStatusProvider>
+                <h2 id="як-зявився-цей-проєкт">
+                  <a href="#Огляд" aria-hidden="true">
+                    <span className="icon icon-link"></span>
+                  </a>
+                  Огляд
+                  {/* <button
+                    className="text-ui-typo text-base float-right"
+                    onClick={() => setIsFilterOpened(!isFilterOpened)}
+                  >
+                    <EqualizerIcon size={1.7} />
+                  </button> */}
+                </h2>
+                {isFilterOpened ? <TranslationStatusSettings /> : null}
+                <TranslationStatus allPages={allPages} />
+              </TraslationStatusProvider>
             </div>
           </div>
         </div>
