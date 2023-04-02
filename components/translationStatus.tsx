@@ -63,6 +63,17 @@ export default function TranslationStatus({ allPages }: Params) {
         });
       }
     });
+    for (const section of [
+      supportedSections.css,
+      supportedSections.html,
+      supportedSections.javascript,
+      supportedSections.svg,
+      supportedSections.guide,
+    ]) {
+      section.sort(
+        (a, b) => (b.currentPopularity || 0) - (a.currentPopularity || 0)
+      );
+    }
   } else {
     allPages.forEach((page) => {
       const { section } = page;
@@ -70,6 +81,16 @@ export default function TranslationStatus({ allPages }: Params) {
         supportedSections[section].push(page);
       }
     });
+
+    for (const section of [
+      supportedSections.css,
+      supportedSections.html,
+      supportedSections.javascript,
+      supportedSections.svg,
+      supportedSections.guide,
+    ]) {
+      section.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+    }
   }
 
   const allSupportedPages = [
