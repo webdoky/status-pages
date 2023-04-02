@@ -1,5 +1,4 @@
 import Logo from './logo';
-// import Search from './search';
 import ToggleDarkMode from './toggleDarkMode';
 import { GithubIcon } from './icons';
 import Link from 'next/link';
@@ -22,7 +21,7 @@ export default function LayoutHeader() {
         <div className="flex items-center justify-between -mx-2 sm:-mx-4">
           <div className="flex flex-col items-center px-2 mr-auto sm:px-4 sm:flex-row">
             <Link
-              href="/"
+              href={process.env.NEXT_PUBLIC_PROJECT_HOME || '/'}
               className="flex items-center text-ui-primary no-underline"
               title="На головну"
               passHref
