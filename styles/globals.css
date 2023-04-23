@@ -203,6 +203,8 @@ blockquote {
 .Dropdown-root {
   .Dropdown-control {
     @apply py-2 pl-4 pr-7 border-2 rounded-lg bg-ui-sidebar border-ui-sidebar;
+
+    color: var(--color-ui-typo);
   }
 
   &.is-open .Dropdown-control {
@@ -220,7 +222,13 @@ blockquote {
   }
 
   .Dropdown-menu {
-    @apply inset-x-0 border-2 border-t-0 rounded-lg rounded-t-none shadow-lg bg-ui-background border-ui-sidebar
+    @apply inset-x-0 border-2 border-t-0 rounded-lg rounded-t-none shadow-lg bg-ui-background border-ui-sidebar;
+    
+    z-index: 9;
+  }
+
+  .Dropdown-option {
+    color: var(--color-ui-typo);
   }
 
   /* fixed inset-x-0 z-50 overflow-y-auto border-2 border-t-0 rounded-lg rounded-t-none shadow-lg results bg-ui-background bottom:0 sm:bottom-auto sm:absolute border-ui-sidebar */

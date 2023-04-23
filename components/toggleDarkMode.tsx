@@ -1,33 +1,15 @@
-import { useState } from 'react';
 import { MoonIcon, SunIcon } from './icons';
-export const LIGHTS_OUT = 'lights-out';
+import useTheme from '../contexts/theme';
 
 export default function ToggleDarkMode({ className }: { className?: string }) {
-  const [isDarkMode, setDarkMode] = useState(false);
+  const [isDarkMode, handleToggle] = useTheme();
 
-  const handleClick = () => {
-    const hasDarkMode = document.documentElement.hasAttribute(LIGHTS_OUT);
-
-    return toggleDarkMode(!hasDarkMode);
-  };
-
-  const toggleDarkMode = (shouldBeDark: boolean) => {
-    document.documentElement.toggleAttribute(LIGHTS_OUT, shouldBeDark);
-
-    setDarkMode(shouldBeDark);
-
-    writeToStorage(shouldBeDark);
-  };
-
-  const writeToStorage = (prefersDark: boolean) => {
-    localStorage.setItem(LIGHTS_OUT, prefersDark ? 'true' : 'false');
-  };
   return (
     <button
       className={className}
       aria-label="Перемкнути темний режим"
       title="Перемкнути темний режим"
-      onClick={handleClick}
+      onClick={handleToggle}
     >
       {' '}
       {isDarkMode ? <MoonIcon size={1.7} /> : <SunIcon size={1.7} />}

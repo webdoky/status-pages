@@ -4,12 +4,16 @@ interface Params {
   title?: string;
   anchor?: string;
   allPages: Partial<PageData>[];
+  onToggle?: () => void;
+  isChecked?: boolean;
 }
 
 export default function TranslationOverallStatusRow({
   title = '',
   anchor = '',
   allPages,
+  onToggle,
+  isChecked = false,
 }: Params) {
   const allPageCount = allPages.length;
   const translatedPageCount = allPages.filter((node) => node.hasContent).length;
@@ -30,8 +34,18 @@ export default function TranslationOverallStatusRow({
   return (
     <tr>
       <td>
+        {onToggle ? (
+          <input
+            type="checkbox"
+            checked={isChecked}
+            className="mr-2"
+            onChange={onToggle}
+          />
+        ) : null}
+      </td>
+      <td>
         {anchor ? (
-          <a href={`#${title}`} className="text-ui-typo">
+          <a href={`#${anchor}`} className="text-ui-typo">
             {' '}
             {title}{' '}
           </a>

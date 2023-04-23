@@ -1,8 +1,9 @@
 import { PageData } from '../content/contentLoader';
 import TranslationStatusSection from './translationStatusSection';
 import TranslationOverallStatusRow from './translationOverallStatusRow';
-import useTranslationStatusSettings from '../contexts/translationStatusContext';
-import { FilterSate } from '../contexts/translationStatusContext';
+import useTranslationStatusSettings from '../contexts/translationStatusSettings';
+import { FilterSate } from '../contexts/translationStatusSettings';
+import { DocumentationSections } from '../contexts/translationStatusSettings';
 
 const NUMBER_OF_SIGNIFICANT_DIGITS = 4;
 
@@ -29,12 +30,32 @@ const filterPages = (pages: PageData[], data: FilterSate) => {
   );
 };
 
+const availableSectionsMeta: Record<
+  DocumentationSections,
+  {
+    title: string;
+    anchor: string;
+  }
+> = {
+  [DocumentationSections.css]: { title: 'CSS', anchor: 'CSS' },
+  [DocumentationSections.html]: { title: 'HTML', anchor: 'HTML' },
+  [DocumentationSections.javascript]: {
+    title: 'JavaScript',
+    anchor: 'JavaScript',
+  },
+  [DocumentationSections.svg]: { title: 'SVG', anchor: 'SVG' },
+  [DocumentationSections.guide]: { title: 'Посібники', anchor: 'Posibnyky' },
+  [DocumentationSections.glossary]: { title: 'Глосарій', anchor: 'Hlosarii' },
+};
+
+const availableSectionsNames = Object.values(DocumentationSections);
+
 export default function TranslationStatus({ allPages }: Params) {
   const [filterState, dispatch] = useTranslationStatusSettings();
-  const { priorityType } = filterState;
+  const { activeSections, displayedRating, sort } = filterState;
 
   const supportedSections: Record<
-    string,
+    DocumentationSections,
     (PageWithPopularityData & { currentPopularity?: number })[]
   > = {
     css: [],
@@ -45,12 +66,12 @@ export default function TranslationStatus({ allPages }: Params) {
     glossary: [],
   };
 
-  if (priorityType !== 'none') {
+  if (displayedRating !== 'none') {
     allPages.forEach((page) => {
       const { popularity } = page;
 
       const currentPopularity = parseFloat(
-        popularity[priorityType === 'wd' ? 'wd' : 'mdn'].toFixed(
+        popularity[displayedRating === 'wd' ? 'wd' : 'mdn'].toFixed(
           NUMBER_OF_SIGNIFICANT_DIGITS
         )
       );
@@ -63,17 +84,6 @@ export default function TranslationStatus({ allPages }: Params) {
         });
       }
     });
-    for (const section of [
-      supportedSections.css,
-      supportedSections.html,
-      supportedSections.javascript,
-      supportedSections.svg,
-      supportedSections.guide,
-    ]) {
-      section.sort(
-        (a, b) => (b.currentPopularity || 0) - (a.currentPopularity || 0)
-      );
-    }
   } else {
     allPages.forEach((page) => {
       const { section } = page;
@@ -81,16 +91,14 @@ export default function TranslationStatus({ allPages }: Params) {
         supportedSections[section].push(page);
       }
     });
+  }
 
-    for (const section of [
-      supportedSections.css,
-      supportedSections.html,
-      supportedSections.javascript,
-      supportedSections.svg,
-      supportedSections.guide,
-    ]) {
-      section.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
-    }
+  for (const sectionName of availableSectionsNames) {
+    supportedSections[sectionName].sort(
+      sort === 'byRating'
+        ? (a, b) => (b.currentPopularity || 0) - (a.currentPopularity || 0)
+        : (a, b) => (a.title || '').localeCompare(b.title || '')
+    );
   }
 
   const allSupportedPages = [
@@ -107,6 +115,7 @@ export default function TranslationStatus({ allPages }: Params) {
         <table className="table table-bordered w-full doc-status__table">
           <thead>
             <tr>
+              <th></th>
               <th>Розділ</th>
               <th>Сторінки</th>
               <th>
@@ -145,36 +154,22 @@ export default function TranslationStatus({ allPages }: Params) {
             </tr>
           </thead>
           <tbody>
-            <TranslationOverallStatusRow
-              allPages={supportedSections.css}
-              title="CSS"
-              anchor="CSS"
-            />
-            <TranslationOverallStatusRow
-              allPages={supportedSections.html}
-              title="HTML"
-              anchor="HTML"
-            />
-            <TranslationOverallStatusRow
-              allPages={supportedSections.javascript}
-              title="JavaScript"
-              anchor="JavaScript"
-            />
-            <TranslationOverallStatusRow
-              allPages={supportedSections.svg}
-              title="SVG"
-              anchor="SVG"
-            />
-            <TranslationOverallStatusRow
-              allPages={supportedSections.guide}
-              title="Посібники"
-              anchor="Посібники"
-            />
-            <TranslationOverallStatusRow
-              allPages={supportedSections.glossary}
-              title="Глосарій"
-              anchor="Глосарій"
-            />
+            {availableSectionsNames.map((sectionName) => (
+              <TranslationOverallStatusRow
+                key={`TranslationOverallStatusRow_${sectionName}`}
+                allPages={supportedSections[sectionName]}
+                title={availableSectionsMeta[sectionName].title}
+                anchor={availableSectionsMeta[sectionName].anchor}
+                isChecked={activeSections.includes(sectionName)}
+                onToggle={() =>
+                  dispatch({
+                    type: 'toggleDocumentationSection',
+                    value: sectionName,
+                  })
+                }
+              />
+            ))}
+
             <TranslationOverallStatusRow
               allPages={allSupportedPages}
               title="Загалом"
@@ -189,83 +184,17 @@ export default function TranslationStatus({ allPages }: Params) {
         </a>
         Стан перекладу за розділами
       </h2>
-      <h3 id="CSS">
-        <a href="#CSS" aria-hidden="true">
-          <span className="icon icon-link"></span>
-        </a>
-        CSS
-      </h3>
-      <div className="wd-table-scroll">
-        <TranslationStatusSection
-          pages={filterPages(supportedSections.css, filterState)}
-          includePopularity={true}
-        />
-      </div>
 
-      <h3 id="HTML">
-        <a href="#HTML" aria-hidden="true">
-          <span className="icon icon-link"></span>
-        </a>
-        HTML
-      </h3>
-      <div className="wd-table-scroll">
+      {availableSectionsNames.map((sectionName) => (
         <TranslationStatusSection
-          pages={filterPages(supportedSections.html, filterState)}
-          includePopularity={true}
+          key={`TranslationStatusSection_${sectionName}`}
+          anchor={availableSectionsMeta[sectionName].anchor}
+          title={availableSectionsMeta[sectionName].title}
+          sectionName={sectionName}
+          pages={filterPages(supportedSections[sectionName], filterState)}
+          includePopularity={displayedRating !== 'none'}
         />
-      </div>
-
-      <h3 id="JavaScript">
-        <a href="#JavaScript" aria-hidden="true">
-          <span className="icon icon-link"></span>
-        </a>
-        JavaScript
-      </h3>
-      <div className="wd-table-scroll">
-        <TranslationStatusSection
-          pages={filterPages(supportedSections.javascript, filterState)}
-          includePopularity={true}
-        />
-      </div>
-
-      <h3 id="SVG">
-        <a href="#SVG" aria-hidden="true">
-          <span className="icon icon-link"></span>
-        </a>
-        SVG
-      </h3>
-      <div className="wd-table-scroll">
-        <TranslationStatusSection
-          pages={filterPages(supportedSections.svg, filterState)}
-          includePopularity={true}
-        />
-      </div>
-
-      <h3 id="Посібники">
-        <a href="#Посібники" aria-hidden="true">
-          <span className="icon icon-link"></span>
-        </a>
-        Посібники
-      </h3>
-      <div className="wd-table-scroll">
-        <TranslationStatusSection
-          pages={filterPages(supportedSections.guide, filterState)}
-          includePopularity={true}
-        />
-      </div>
-
-      <h3 id="Глосарій">
-        <a href="#Глосарій" aria-hidden="true">
-          <span className="icon icon-link"></span>
-        </a>
-        Глосарій
-      </h3>
-      <div className="wd-table-scroll">
-        <TranslationStatusSection
-          pages={filterPages(supportedSections.glossary, filterState)}
-          includePopularity={true}
-        />
-      </div>
+      ))}
     </>
   );
 }

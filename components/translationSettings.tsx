@@ -1,55 +1,78 @@
-import useTranslationStatusSettings from '../contexts/translationStatusContext';
+import useTranslationStatusSettings, {
+  DisplayedRating,
+  SortingBy,
+} from '../contexts/translationStatusSettings';
 import Select from './select';
+
+const ratingDisplayOptions: { label: string; value: DisplayedRating }[] = [
+  {
+    label: 'Аналітики вебсайту ВебДоки',
+    value: 'wd',
+  },
+  {
+    label: 'Аналітики вебсайту MDN WebDocs',
+    value: 'mdn',
+  },
+  {
+    label: 'Не показувати рейтинг',
+    value: 'none',
+  },
+];
+
+const sortingOptions: { label: string; value: SortingBy }[] = [
+  {
+    label: 'За рейтингом',
+    value: 'byRating',
+  },
+  {
+    label: 'Алфавітно',
+    value: 'alphabetically',
+  },
+];
 
 export default function TranslationStatusSettings() {
   const [filterState, dispatch] = useTranslationStatusSettings();
+  const { displayedRating, sort } = filterState;
+
+  const selectedDisplayedRatingOption = ratingDisplayOptions.find(
+    (entry) => entry.value === displayedRating
+  );
+
+  const selectedSortByOption = sortingOptions.find(
+    (entry) => entry.value === sort
+  );
 
   return (
     <>
-      <div className="flex justify-between">
-        <label></label>
-        <Select
-          options={['mdn', 'wd']}
-          onChange={(option) => {
-            console.log(option, '???');
-          }}
-        />
-        <label>
-          <input
-            type="radio"
-            checked={!filterState.priorityOnly}
-            className="mr-2"
-            onChange={() =>
-              dispatch({ type: 'setSortingByAnalytics', value: 'none' })
-            }
+      <div className="mb-3 flex-col flex">
+        <label className="inline-flex justify-start items-center">
+          Показувати рейтинг сторінок:
+          <Select
+            className="ml-3"
+            options={ratingDisplayOptions}
+            value={selectedDisplayedRatingOption}
+            onChange={(option) => {
+              dispatch({
+                type: 'setDisplayedRating',
+                value: option.value as DisplayedRating,
+              });
+            }}
           />
-          Не сортувати за пріоритетом
         </label>
-        <label>
-          <input
-            type="radio"
-            checked={
-              filterState.priorityOnly && filterState.priorityType === 'mdn'
-            }
-            className="mr-2"
-            onChange={() =>
-              dispatch({ type: 'setSortingByAnalytics', value: 'mdn' })
-            }
+
+        <label className="inline-flex justify-start items-center mt-3">
+          Сортувати:
+          <Select
+            className="ml-3"
+            options={sortingOptions}
+            value={selectedSortByOption}
+            onChange={(option) => {
+              dispatch({
+                type: 'setSortByValue',
+                value: option.value as SortingBy,
+              });
+            }}
           />
-          Сортувати за популярністю MDN
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={
-              filterState.priorityOnly && filterState.priorityType === 'wd'
-            }
-            className="mr-2"
-            onChange={() =>
-              dispatch({ type: 'setSortingByAnalytics', value: 'wd' })
-            }
-          />
-          Сортувати за нашою аналітикою
         </label>
       </div>
       <hr />

@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { DocumentationSections } from '../contexts/translationStatusSettings';
 
 const contentCachePath = 'cache';
 const mainIndexFile = 'mainIndex.json';
@@ -34,7 +35,7 @@ export interface PageData {
   title: string;
   path: string;
   slug: string;
-  section: string;
+  section: DocumentationSections;
   hasContent: boolean;
   originalPath: string;
   updatesInOriginalRepo: string[];

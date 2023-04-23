@@ -9,7 +9,7 @@ import SearchDataLoader from '../content/searchDataLoader';
 import { EqualizerIcon } from '../components/icons';
 import { useState } from 'react';
 import TranslationStatusSettings from '../components/translationSettings';
-import { TraslationStatusProvider } from '../contexts/translationStatusContext';
+import { TraslationStatusProvider } from '../contexts/translationStatusSettings';
 import { PagePopularityData } from '../components/translationStatus';
 
 export async function getStaticProps() {
@@ -40,6 +40,8 @@ export default function IndexPage({
 }) {
   const [isFilterOpened, setIsFilterOpened] = useState(false);
 
+  const toggleFilterPanelOpened = () => setIsFilterOpened(!isFilterOpened);
+
   return (
     <main className="wd-main-page">
       <MetaHead
@@ -65,12 +67,12 @@ export default function IndexPage({
                     <span className="icon icon-link"></span>
                   </a>
                   Огляд
-                  {/* <button
+                  <button
                     className="text-ui-typo text-base float-right"
-                    onClick={() => setIsFilterOpened(!isFilterOpened)}
+                    onClick={toggleFilterPanelOpened}
                   >
                     <EqualizerIcon size={1.7} />
-                  </button> */}
+                  </button>
                 </h2>
                 {isFilterOpened ? <TranslationStatusSettings /> : null}
                 <TranslationStatus allPages={allPages} />
