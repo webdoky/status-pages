@@ -19,7 +19,7 @@ jobs:
 
       - name: Update submodules
         run: |
-          cd ../original-content && git checkout main && git pull origin main --ff-only
+          cd external/original-content && git checkout main && git pull origin main --ff-only
           cd ../translated-content && git checkout master && git pull origin master --ff-only
           cd ../../
       - name: Commit update
