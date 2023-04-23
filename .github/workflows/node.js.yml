@@ -1,0 +1,29 @@
+name: Update Submodules
+
+# on:
+#   schedule:
+#     - cron: '30 0,8,16 * * *'
+    
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checks out the repo
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Update submodules
+        run: |
+          cd ../original-content && git checkout main && git pull origin main --ff-only
+          cd ../translated-content && git checkout master && git pull origin master --ff-only
+          cd ../../
+      - name: Commit update
+        run: |
+          git config --global user.name 'Mykola Myslovskyi'
+          git config --global user.email '${{ secrets.EMAIL }}'
+          git commit -am "chore: update submodules" && git push
