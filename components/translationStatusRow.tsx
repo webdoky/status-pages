@@ -15,7 +15,7 @@ interface Params {
 }
 
 const escapeHtml = (str: string) => {
-  return str.replace('<', '&lt;');
+  return str.replaceAll('<', '&lt;');
 };
 
 const parseUpdatesList = (
