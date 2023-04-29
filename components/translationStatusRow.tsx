@@ -33,6 +33,8 @@ const parseUpdatesList = (
     };
   });
 
+const webDokyBase = process.env.NEXT_PUBLIC_PROJECT_HOME;
+
 export default function TranslationStatusRow({
   page,
   includePopularity,
@@ -91,7 +93,7 @@ export default function TranslationStatusRow({
           <span className={`mb-0 ${includePopularity ? '' : 'pl-4'}`}>
             <a
               className="text-ui-typo"
-              href={page.path}
+              href={`${webDokyBase}${page.path}`}
               target="_blank"
               rel="noopener noreferrer"
             >
