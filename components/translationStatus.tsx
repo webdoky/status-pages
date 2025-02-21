@@ -44,7 +44,6 @@ const availableSectionsMeta: Record<
     anchor: 'JavaScript',
   },
   [DocumentationSections.svg]: { title: 'SVG', anchor: 'SVG' },
-  [DocumentationSections.guide]: { title: 'Посібники', anchor: 'Posibnyky' },
   [DocumentationSections.glossary]: { title: 'Глосарій', anchor: 'Hlosarii' },
 };
 
@@ -62,7 +61,6 @@ export default function TranslationStatus({ allPages }: Params) {
     html: [],
     javascript: [],
     svg: [],
-    guide: [],
     glossary: [],
   };
 
@@ -106,7 +104,6 @@ export default function TranslationStatus({ allPages }: Params) {
     ...supportedSections.html,
     ...supportedSections.javascript,
     ...supportedSections.svg,
-    ...supportedSections.guide,
   ];
 
   return (

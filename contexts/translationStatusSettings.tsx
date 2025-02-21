@@ -94,7 +94,6 @@ export enum DocumentationSections {
   html = 'html',
   javascript = 'javascript',
   svg = 'svg',
-  guide = 'guide',
   glossary = 'glossary',
 }
 
@@ -118,7 +117,6 @@ const defaultFilterState: FilterSate = {
     DocumentationSections.html,
     DocumentationSections.javascript,
     DocumentationSections.svg,
-    DocumentationSections.guide,
     DocumentationSections.glossary,
   ],
 };
