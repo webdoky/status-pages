@@ -2,6 +2,9 @@
   "name": "status-pages",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18"
+  },
   "scripts": {
     "get-analytics": "node --loader ts-node/esm ./pre-build/get-analytics.mts",
     "process-content": "node --loader ts-node/esm ./pre-build/process-content.mts",
